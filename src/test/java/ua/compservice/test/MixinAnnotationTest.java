@@ -59,7 +59,7 @@ class MyModule extends SimpleModule {
 	private static final long serialVersionUID = 1L;
 	
 	public MyModule() {
-		super("MyModule", new Version(0, 0, 1, null));
+		super("MyModule", Version.unknownVersion());
 	}
 
 	@Override
