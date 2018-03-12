@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @DisplayName("Annotations tests")
 class AnnotationTests {
 
-	@DisplayName("Demo of using @JsonAlias annotation...")
+	@DisplayName("@JsonAlias annotation...")
 	@Test
 	void testAlias() throws JsonParseException, JsonMappingException, IOException {
 
@@ -44,7 +45,7 @@ class AnnotationTests {
 
 	}
 
-	@DisplayName("JsonAnySetter annotation")
+	@DisplayName("@JsonAnySetter with using method annotation")
 	@Test
 	void testJsonAnySetter() throws JsonParseException, JsonMappingException, IOException {
 
@@ -63,6 +64,58 @@ class AnnotationTests {
 		assertThat((String) pojo.map.get("prop2"), is(equalTo("Some string")));
 		assertThat((Boolean) pojo.map.get("prop3"), is(true));
 
+	}
+
+	@DisplayName("@JsonAnySetter with using a field of Map type")
+	@Test
+	void testJsonAnySetterAsField() throws JsonParseException, JsonMappingException, IOException {
+
+		String json = "{\n" + "  \"n\": \"Dimkas\",\n" + "  \"age\": 46,\n" + "  \"prop1\": 1,\n"
+				+ "  \"prop2\": \"Some string\",\n" + "  \"prop3\": true\n" + "}";
+
+		ObjectMapper mapper = new ObjectMapper();
+
+		AnySetterWithMapPojo pojo = mapper.readValue(json, AnySetterWithMapPojo.class);
+
+		assertThat(pojo.getName(), is(equalTo("Dimkas")));
+		assertThat(pojo.getAge(), is(equalTo(46)));
+		assertThat(pojo.withMap().size(), is(equalTo(3)));
+
+		assertThat((Integer) pojo.withMap().get("prop1"), is(equalTo(1)));
+		assertThat((String) pojo.withMap().get("prop2"), is(equalTo("Some string")));
+		assertThat((Boolean) pojo.withMap().get("prop3"), is(true));
+
+	}
+
+}
+
+class AnySetterWithMapPojo {
+
+	@JsonAlias({ "n" })
+	private String name;
+	private int age;
+
+	@JsonAnySetter
+	private Map<String, Object> map = new HashMap<>();
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public Map<String, Object> withMap() {
+		return Collections.unmodifiableMap(map);
 	}
 
 }
